@@ -1,14 +1,15 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const axios = require('axios');
+const cors = require('cors');
 const app = express();
 require('dotenv').config();
 
 app.use(express.json());
+app.use(cors());
 
-const DBURI= process.env.DB_URI;
-const PORT= process.env.PORT||4500;
+const DBURI = process.env.DB_URI;
+const PORT = process.env.PORT || 4500;
 
 mongoose.connect(DBURI, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
@@ -36,15 +37,14 @@ app.get('/validateGiftCard/:giftCardNumber', async (req, res) => {
       password: 'cs_ee0259074bde553ce2008e6e0cd3994f99da77d5',
     };
 
-    const response = await axios.get(`${endpoint}/${giftCardNumber}`, { auth });
+    const response = await axios.post(endpoint, { giftCardNumber }, { auth });
     console.log(`Response: ${response}`);
     const isValid = response.data.valid;
     const balance = isValid ? response.data.balance : null;
 
     res.json({ isValid, balance });
   } catch (error) {
-    // console.error('Error validating gift card:', error);
-    console.log('Error: ',error)
+    console.log('Error: ', error)
     res.status(500).json({ isValid: false, balance: null, error: 'Gift Card Not Found!' });
   }
 });
